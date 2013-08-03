@@ -22,6 +22,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.ModbusUtil;
 
 import java.io.DataInputStream;
@@ -48,6 +49,7 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 	private BytesInputStream m_ByteIn; // to read message from
 	private BytesOutputStream m_ByteInOut; // to buffer message to
 	private BytesOutputStream m_ByteOut; // write frames
+	private ProcessImage m_ProcessImage;
 
 	/**
 	 * Constructs a new <tt>MobusASCIITransport</tt> instance.
@@ -133,6 +135,7 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 					// read message
 					m_ByteIn.reset(m_InBuffer, m_ByteInOut.size());
 					request.readFrom(m_ByteIn);
+					request.setProcessImage(m_ProcessImage);
 				}
 				done = true;
 			} while (!done);
@@ -260,6 +263,11 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 		} catch (IOException e) {
 			// TODO: If flushing the buffer fails, what should we do?
 		}
+	}
+
+	@Override
+	public void setSlaveProcessImage(ProcessImage image) {
+		m_ProcessImage = image;
 	}
 
 }// class ModbusASCIITransport

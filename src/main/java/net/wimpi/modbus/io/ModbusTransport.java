@@ -22,6 +22,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Interface defining the I/O mechanisms for <tt>ModbusMessage</tt> instances.
@@ -82,5 +83,13 @@ public interface ModbusTransport {
 	 * waiting data.
 	 */
 	public void flush();
+	
+	/** Set the process image to assign to all the incoming requests through
+	 * this transport.  This is only used for slave modbus connections.  When
+	 * a request is received, then the transport will assign this process image
+	 * to each request.
+	 * @param image The process image for the slave to use.
+	 */
+	public void setSlaveProcessImage(ProcessImage image);
 
 }// class ModbusTransport

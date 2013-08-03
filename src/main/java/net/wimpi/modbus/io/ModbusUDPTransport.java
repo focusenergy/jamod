@@ -26,6 +26,7 @@ import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
 import net.wimpi.modbus.net.UDPTerminal;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Class that implements the Modbus UDP transport flavor.
@@ -39,6 +40,7 @@ public class ModbusUDPTransport implements ModbusTransport {
 	private UDPTerminal m_Terminal;
 	private BytesOutputStream m_ByteOut;
 	private BytesInputStream m_ByteIn;
+	private ProcessImage m_ProcessImage;
 
 	/**
 	 * Constructs a new <tt>ModbusTransport</tt> instance, for a given
@@ -80,6 +82,7 @@ public class ModbusUDPTransport implements ModbusTransport {
 				m_ByteIn.reset();
 				req = ModbusRequest.createModbusRequest(functionCode);
 				req.readFrom(m_ByteIn);
+				req.setProcessImage(m_ProcessImage);
 			}
 			return req;
 		} catch (Exception ex) {
@@ -111,6 +114,11 @@ public class ModbusUDPTransport implements ModbusTransport {
 	@Override
 	public void flush() {
 		m_ByteIn.skip(m_ByteIn.available());
+	}
+
+	@Override
+	public void setSlaveProcessImage(ProcessImage image) {
+		m_ProcessImage = image;
 	}
 
 }// class ModbusUDPTransport

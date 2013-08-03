@@ -39,8 +39,6 @@ import net.wimpi.modbus.util.ThreadPool;
  */
 public class ModbusTCPListener implements Runnable {
 
-	private static int c_RequestCounter = 0;
-
 	private ServerSocket m_ServerSocket = null;
 	private ThreadPool m_ThreadPool;
 	private Thread m_Listener;

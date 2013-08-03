@@ -31,6 +31,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.ModbusUtil;
 
 /**
@@ -45,6 +46,7 @@ public class ModbusTCPTransport implements ModbusTransport {
 	private DataInputStream m_Input; // input stream
 	private DataOutputStream m_Output; // output stream
 	private BytesInputStream m_ByteIn;
+	private ProcessImage m_ProcessImage;
 
 	/**
 	 * Constructs a new <tt>ModbusTransport</tt> instance, for a given
@@ -122,6 +124,7 @@ public class ModbusTCPTransport implements ModbusTransport {
 				m_ByteIn.reset();
 				req = ModbusRequest.createModbusRequest(functionCode);
 				req.readFrom(m_ByteIn);
+				req.setProcessImage(m_ProcessImage);
 			}
 			return req;
 			/*
@@ -230,5 +233,10 @@ public class ModbusTCPTransport implements ModbusTransport {
 				socket.getOutputStream()));
 		m_ByteIn = new BytesInputStream(Modbus.MAX_IP_MESSAGE_LENGTH);
 	}// prepareStreams
+
+	@Override
+	public void setSlaveProcessImage(ProcessImage image) {
+		m_ProcessImage = image;
+	}
 
 }// class ModbusTCPTransport

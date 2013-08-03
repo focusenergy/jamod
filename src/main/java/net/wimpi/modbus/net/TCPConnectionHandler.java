@@ -17,7 +17,6 @@
 package net.wimpi.modbus.net;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.io.ModbusTransport;
 import net.wimpi.modbus.msg.ModbusRequest;

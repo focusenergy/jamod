@@ -21,6 +21,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.ModbusUtil;
 
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
 	private BytesOutputStream m_ByteInOut; // to buffer message to
 	private BytesOutputStream m_ByteOut; // write frames
 	private byte[] lastRequest = null;
+	//private ProcessImage m_ProcessImage; //not used
 
 	public void writeMessage(ModbusMessage msg) throws ModbusIOException {
 		try {
@@ -281,6 +283,11 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
 		} catch (IOException e) {
 			// TODO: If flushing the buffer fails, what should we do?
 		}
+	}
+
+	@Override
+	public void setSlaveProcessImage(ProcessImage image) {
+		//m_ProcessImage = image; //Not used
 	}
 
 } // ModbusRTUTransport
