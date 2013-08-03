@@ -86,6 +86,7 @@ public class ModbusUDPListener {
 	 */
 	public void start() {
 		// start listening
+		m_Listening.set(true);
 		try {
 			m_Listening.set(true);
 			if (m_Interface == null) {
@@ -139,7 +140,7 @@ public class ModbusUDPListener {
 
 		public void run() {
 			try {
-				do {
+				while (m_Continue.get()) {
 					// 1. read the request
 					ModbusRequest request = m_Transport.readRequest();
 					// System.out.println("Request:" + request.getHexMessage());
@@ -152,7 +153,7 @@ public class ModbusUDPListener {
 					}
 
 					// test if Process image exists
-					if (ModbusCoupler.getReference().getProcessImage() == null) {
+					if (request.getProcessImage() == null) {
 						response = request
 								.createExceptionResponse(Modbus.ILLEGAL_FUNCTION_EXCEPTION);
 					} else {
@@ -169,7 +170,7 @@ public class ModbusUDPListener {
 					// System.out.println("Response:" +
 					// response.getHexMessage());
 					m_Transport.writeMessage(response);
-				} while (m_Continue.get());
+				}
 			} catch (ModbusIOException ex) {
 				if (!ex.isEOF()) {
 					// other troubles, output for debug

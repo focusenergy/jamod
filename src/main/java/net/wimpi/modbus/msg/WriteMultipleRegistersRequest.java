@@ -74,9 +74,10 @@ public final class WriteMultipleRegistersRequest extends ModbusRequest {
 
 		if (m_NonWordDataHandler == null) {
 			Register[] regs = null;
+			
 			// 1. get process image
-			ProcessImage procimg = ModbusCoupler.getReference()
-					.getProcessImage();
+			ProcessImage procimg = this.getProcessImage();
+			
 			// 2. get registers
 			try {
 				// TODO: realize a setRegisterRange()?

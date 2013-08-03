@@ -47,7 +47,7 @@ public class ModbusTCPListener implements Runnable {
 	private int m_Port = Modbus.DEFAULT_PORT;
 	private int m_FloodProtection = 5;
 	private final AtomicBoolean m_Listening;
-	private InetAddress m_Address;
+	private InetAddress m_Address = null;
 
 	/**
 	 * Constructs a ModbusTCPListener instance.<br>
@@ -62,7 +62,8 @@ public class ModbusTCPListener implements Runnable {
 		try {
 			m_Address = InetAddress.getLocalHost();
 		} catch (UnknownHostException ex) {
-
+			if (Modbus.debug)
+				System.out.println("Couldn't get the local address: "+ex.toString());
 		}
 	}// constructor
 
@@ -144,7 +145,7 @@ public class ModbusTCPListener implements Runnable {
 
 			// Infinite loop, taking care of resources in case of a lot of
 			// parallel logins
-			do {
+			while (m_Listening.get()) {
 				Socket incoming = m_ServerSocket.accept();
 				if (Modbus.debug)
 					System.out.println("Making new connection "
@@ -153,14 +154,15 @@ public class ModbusTCPListener implements Runnable {
 					// FIXME: Replace with object pool due to resource issues
 					m_ThreadPool.execute(new TCPConnectionHandler(
 							new TCPSlaveConnection(incoming)));
-					count();
 				} else {
 					// just close the socket
 					incoming.close();
 				}
-			} while (m_Listening.get());
+			}
 		} catch (SocketException iex) {
-			if (m_Listening.get()) {
+			if (!m_Listening.get()) {
+				return;
+			} else {
 				iex.printStackTrace();
 			}
 		} catch (IOException e) {
@@ -179,15 +181,5 @@ public class ModbusTCPListener implements Runnable {
 	public boolean isListening() {
 		return m_Listening.get();
 	}// isListening
-
-	private void count() {
-		c_RequestCounter++;
-		if (c_RequestCounter == REQUESTS_TOGC) {
-			System.gc();
-			c_RequestCounter = 0;
-		}
-	}// count
-
-	private static final int REQUESTS_TOGC = 10;
 
 }// class ModbusTCPListener

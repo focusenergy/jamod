@@ -83,7 +83,7 @@ public class ModbusSerialListener implements Runnable {
 					ModbusResponse response = null;
 
 					// test if Process image exists
-					if (ModbusCoupler.getReference().getProcessImage() == null) {
+					if (request.getProcessImage() == null) {
 						response = request
 								.createExceptionResponse(Modbus.ILLEGAL_FUNCTION_EXCEPTION);
 					} else {

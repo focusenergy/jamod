@@ -24,7 +24,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.procimg.DigitalOut;
 import net.wimpi.modbus.procimg.IllegalAddressException;
 import net.wimpi.modbus.procimg.ProcessImage;
@@ -79,7 +78,8 @@ public final class ReadCoilsRequest extends ModbusRequest {
 		DigitalOut[] douts = null;
 
 		// 1. get process image
-		ProcessImage procimg = ModbusCoupler.getReference().getProcessImage();
+		ProcessImage procimg = this.getProcessImage();
+		
 		// 2. get coil range
 		try {
 			douts = procimg.getDigitalOutRange(this.getReference(),

@@ -24,7 +24,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.procimg.IllegalAddressException;
 import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.procimg.Register;
@@ -77,7 +76,8 @@ public final class ReadMultipleRegistersRequest extends ModbusRequest {
 		Register[] regs = null;
 
 		// 1. get process image
-		ProcessImage procimg = ModbusCoupler.getReference().getProcessImage();
+		ProcessImage procimg = this.getProcessImage();
+		
 		// 2. get input registers range
 		try {
 			regs = procimg.getRegisterRange(this.getReference(),

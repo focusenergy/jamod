@@ -77,7 +77,8 @@ public final class WriteSingleRegisterRequest extends ModbusRequest {
 		Register reg = null;
 
 		// 1. get process image
-		ProcessImage procimg = ModbusCoupler.getReference().getProcessImage();
+		ProcessImage procimg = this.getProcessImage();
+		
 		// 2. get register
 		try {
 			reg = procimg.getRegister(m_Reference);

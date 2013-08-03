@@ -20,6 +20,8 @@
 package net.wimpi.modbus.msg;
 
 import net.wimpi.modbus.Modbus;
+import net.wimpi.modbus.ModbusCoupler;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Abstract class implementing a <tt>ModbusRequest</tt>. This class provides
@@ -30,6 +32,8 @@ import net.wimpi.modbus.Modbus;
  */
 public abstract class ModbusRequest extends ModbusMessageImpl {
 
+	protected ProcessImage processImage = null;
+	
 	/**
 	 * Returns the <tt>ModbusResponse</tt> that correlates with this
 	 * <tt>ModbusRequest</tt>.
@@ -117,5 +121,33 @@ public abstract class ModbusRequest extends ModbusMessageImpl {
 	}// createModbusRequest
 
 	public abstract int getReference();
+	
+	/** Set the process image used for the response generation.
+	 * When this request creates the response to send back to the master,
+	 * it will use the process image set with this function.  If this
+	 * function hasn't been called, or has been called with null, then
+	 * the request will use the default process image set in the 
+	 * ModbusCoupler.
+	 * @param procImg The process image to use when generating the
+	 * response, or null to use the default process image set in the
+	 * ModbusCoupler.
+	 */
+	public void setProcessImage(ProcessImage procImg) {
+		processImage = procImg;
+	}
+	
+	/** Get the ProcessImage associated with this request.
+	 * If this request's process image has not been set, then it returns
+	 * the globally set process image from the ModbusCoupler.  If neither
+	 * are set, returns null.
+	 * @return The process image for this request or null if it, as well as
+	 * the global ModbusCoupler's process image, have not been set).
+	 */
+	public ProcessImage getProcessImage() {
+		if (this.processImage == null)
+			return ModbusCoupler.getReference().getProcessImage();
+		else
+			return this.processImage;
+	}
 
 }// class ModbusRequest
