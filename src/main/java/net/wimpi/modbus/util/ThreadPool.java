@@ -108,15 +108,12 @@ public class ThreadPool {
 			setRunning(true);
 			do {
 				try {
-					synchronized (m_TaskPool) {
-						task = (Runnable) m_TaskPool.take();
-					}
+					task = (Runnable) m_TaskPool.take();
 					task.run();
 					
 				} catch (Exception e) {
 					// Ignore, we were likely just interrupted. Recheck if we
 					// should be running or not.
-					continue;
 				}
 			} while (isRunning());
 		}
