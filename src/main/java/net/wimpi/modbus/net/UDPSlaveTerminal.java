@@ -21,6 +21,7 @@ package net.wimpi.modbus.net;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusUDPTransport;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.LinkedQueue;
 import net.wimpi.modbus.util.ModbusUtil;
 
@@ -216,6 +217,13 @@ class UDPSlaveTerminal implements UDPTerminal {
 	public byte[] receiveMessage() throws Exception {
 		return (byte[]) m_ReceiveQueue.take();
 	}// receiveMessage
+	
+	/** Set the process image to associate with this connection.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_ModbusTransport.setProcessImage(image);
+	}
 
 	class PacketSender implements Runnable {
 

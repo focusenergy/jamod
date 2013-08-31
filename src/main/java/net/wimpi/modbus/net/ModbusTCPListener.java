@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.wimpi.modbus.Modbus;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.ThreadPool;
 
 /**
@@ -46,6 +47,7 @@ public class ModbusTCPListener implements Runnable {
 	private int m_FloodProtection = 5;
 	private final AtomicBoolean m_Listening;
 	private InetAddress m_Address = null;
+	private ProcessImage m_ProcessImage = null;
 
 	/**
 	 * Constructs a ModbusTCPListener instance.<br>
@@ -158,7 +160,7 @@ public class ModbusTCPListener implements Runnable {
 			e1.printStackTrace();
 			m_Listening.set(false);
 		}
-		
+
 		Socket incoming = null;
 
 		while (m_Listening.get()) {
@@ -170,9 +172,9 @@ public class ModbusTCPListener implements Runnable {
 				if (m_Listening.get()) {
 					// FIXME: Replace with object pool due to resource issues
 					m_ThreadPool.execute(new TCPConnectionHandler(
-							new TCPSlaveConnection(incoming)));
+							new TCPSlaveConnection(incoming), m_ProcessImage));
 				}
-				
+
 				// We can get these exceptions while quitting. If so, hide the
 				// error message. If the exception occurs during regular
 				// operation though, print the message
@@ -185,19 +187,19 @@ public class ModbusTCPListener implements Runnable {
 					e.printStackTrace();
 				}
 			}
-		} //while listening
-		
+		} // while listening
+
 		if (Modbus.debug)
 			System.out.println("ModbusTCPListener is quitting");
-		
+
 		if (incoming != null) {
 			try {
 				incoming.close();
 			} catch (IOException e) {
-				//Don't care.
+				// Don't care.
 			}
 		}
-		
+
 		m_ThreadPool.killPool();
 	}// run
 
@@ -211,5 +213,15 @@ public class ModbusTCPListener implements Runnable {
 	public boolean isListening() {
 		return m_Listening.get();
 	}// isListening
+
+	/**
+	 * Set the process image to associate with this listener.
+	 * 
+	 * @param image
+	 *            The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		m_ProcessImage = image;
+	}
 
 }// class ModbusTCPListener

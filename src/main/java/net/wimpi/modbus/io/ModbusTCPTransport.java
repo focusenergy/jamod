@@ -123,8 +123,8 @@ public class ModbusTCPTransport implements ModbusTransport {
 				int functionCode = m_ByteIn.readUnsignedByte();
 				m_ByteIn.reset();
 				req = ModbusRequest.createModbusRequest(functionCode);
-				req.readFrom(m_ByteIn);
 				req.setProcessImage(m_ProcessImage);
+				req.readFrom(m_ByteIn);
 			}
 			return req;
 			/*
@@ -188,6 +188,7 @@ public class ModbusTCPTransport implements ModbusTransport {
 				int functionCode = m_ByteIn.readUnsignedByte();
 				m_ByteIn.reset();
 				res = ModbusResponse.createModbusResponse(functionCode);
+				res.setProcessImage(m_ProcessImage);
 				res.readFrom(m_ByteIn);
 			}
 			return res;
@@ -235,7 +236,7 @@ public class ModbusTCPTransport implements ModbusTransport {
 	}// prepareStreams
 
 	@Override
-	public void setSlaveProcessImage(ProcessImage image) {
+	public void setProcessImage(ProcessImage image) {
 		m_ProcessImage = image;
 	}
 

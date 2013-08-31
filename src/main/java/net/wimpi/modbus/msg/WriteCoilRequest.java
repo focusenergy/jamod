@@ -26,6 +26,7 @@ import java.io.IOException;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.procimg.DigitalOut;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
@@ -80,7 +81,7 @@ public final class WriteCoilRequest extends ModbusRequest {
 			
 		// 2. get coil
 		try {
-			dout = procimg.getDigitalOut(this.getReference());
+			dout = procimg.getDigitalOut(getUnitID(), getReference());
 			// 3. set coil
 			dout.set(this.getCoil());
 			// if(Modbus.debug)
@@ -88,8 +89,11 @@ public final class WriteCoilRequest extends ModbusRequest {
 			// + this.getCoil());
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
 		response = new WriteCoilResponse(this.getReference(), dout.isSet());
+
 		// transfer header data
 		if (!isHeadless()) {
 			response.setTransactionID(this.getTransactionID());

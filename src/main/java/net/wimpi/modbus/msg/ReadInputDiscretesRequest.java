@@ -26,6 +26,7 @@ import java.io.IOException;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.procimg.DigitalIn;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
@@ -86,13 +87,15 @@ public final class ReadInputDiscretesRequest extends ModbusRequest {
 
 		// 1. get process image
 		ProcessImage procimg = this.getProcessImage();
-		
-		// 2. get inputdiscretes range
+
 		try {
-			dins = procimg.getDigitalInRange(this.getReference(),
-					this.getBitCount());
+			// 2. get input discretes range
+			dins = procimg.getDigitalInRange(this.getUnitID(),
+					this.getReference(), this.getBitCount());
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
 		response = new ReadInputDiscretesResponse(dins.length);
 		// transfer header data

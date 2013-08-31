@@ -23,9 +23,9 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import net.wimpi.modbus.procimg.DefaultProcessImageFactory;
 import net.wimpi.modbus.procimg.Register;
 import net.wimpi.modbus.procimg.ProcessImageFactory;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.Modbus;
 
 /**
@@ -158,8 +158,13 @@ public final class ReadMultipleRegistersResponse extends ModbusResponse {
 		setByteCount(din.readUnsignedByte());
 
 		m_Registers = new Register[getWordCount()];
-		ProcessImageFactory pimf = ModbusCoupler.getReference()
-				.getProcessImageFactory();
+		ProcessImageFactory pimf = null;
+		if (getProcessImage() != null) {
+			pimf = getProcessImage().getProcessImageFactory();
+		}
+		if (pimf == null) {
+			pimf = DefaultProcessImageFactory.getReference();
+		}
 
 		for (int k = 0; k < getWordCount(); k++) {
 			m_Registers[k] = pimf

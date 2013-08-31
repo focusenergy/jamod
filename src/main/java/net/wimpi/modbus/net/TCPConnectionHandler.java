@@ -21,6 +21,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.io.ModbusTransport;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Class implementing a handler for incoming Modbus/TCP requests.
@@ -38,9 +39,13 @@ public class TCPConnectionHandler implements Runnable {
 	 * 
 	 * @param con
 	 *            an incoming connection.
+	 * @param processImage
+	 *            The process image to use for this connection.
 	 */
-	public TCPConnectionHandler(TCPSlaveConnection con) {
+	public TCPConnectionHandler(TCPSlaveConnection con,
+			ProcessImage processImage) {
 		setConnection(con);
+		setProcessImage(processImage);
 	}// constructor
 
 	/**
@@ -73,11 +78,16 @@ public class TCPConnectionHandler implements Runnable {
 				/* DEBUG */
 				if (Modbus.debug)
 					System.out.println("Request:" + request.getHexMessage());
-				if (Modbus.debug)
-					System.out.println("Response:" + response.getHexMessage());
+				if (Modbus.debug) {
+					if (response != null)
+						System.out.println("Response:"
+								+ response.getHexMessage());
+					else
+						System.out.println("Response: <Nothing to send>");
+				}
 
-				// System.out.println("Response:" + response.getHexMessage());
-				m_Transport.writeMessage(response);
+				if (response != null)
+					m_Transport.writeMessage(response);
 			} while (true);
 		} catch (ModbusIOException ex) {
 			if (!ex.isEOF()) {
@@ -93,6 +103,16 @@ public class TCPConnectionHandler implements Runnable {
 
 		}
 	}// run
+
+	/**
+	 * Set the process image to associate with this connection handler.
+	 * 
+	 * @param image
+	 *            The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		m_Transport.setProcessImage(image);
+	}
 
 }// TCPConnectionHandler
 

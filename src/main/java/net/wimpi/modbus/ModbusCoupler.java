@@ -46,7 +46,7 @@ public class ModbusCoupler {
 	}// initializer
 
 	private ModbusCoupler() {
-		m_PIFactory = new DefaultProcessImageFactory();
+		m_PIFactory = DefaultProcessImageFactory.getReference();
 	}// constructor
 
 	/**

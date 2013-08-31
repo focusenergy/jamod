@@ -24,6 +24,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.io.ModbusUDPTransport;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Class that implements a ModbusUDPListener.<br>
@@ -126,6 +127,13 @@ public class ModbusUDPListener {
 	public boolean isListening() {
 		return m_Listening.get();
 	}// isListening
+	
+	/** Set the process image to associate with this listener.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_Terminal.setProcessImage(image);
+	}
 
 	class ModbusUDPHandler implements Runnable {
 
@@ -162,13 +170,16 @@ public class ModbusUDPListener {
 					if (Modbus.debug)
 						System.out
 								.println("Request:" + request.getHexMessage());
-					if (Modbus.debug)
-						System.out.println("Response:"
-								+ response.getHexMessage());
+					if (Modbus.debug) {
+						if (response != null)
+							System.out.println("Response:"
+									+ response.getHexMessage());
+						else
+							System.out.println("Response: <Nothing to send>");
+					}
 
-					// System.out.println("Response:" +
-					// response.getHexMessage());
-					m_Transport.writeMessage(response);
+					if (response != null)
+						m_Transport.writeMessage(response);
 				}
 			} catch (ModbusIOException ex) {
 				if (!ex.isEOF()) {

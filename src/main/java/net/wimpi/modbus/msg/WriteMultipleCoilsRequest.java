@@ -22,6 +22,7 @@ package net.wimpi.modbus.msg;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.procimg.DigitalOut;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.BitVector;
 
@@ -97,15 +98,19 @@ public final class WriteMultipleCoilsRequest extends ModbusRequest {
 		
 		// 2. get coil range
 		try {
-			douts = procimg.getDigitalOutRange(m_Reference, m_Coils.size());
+			douts = procimg.getDigitalOutRange(getUnitID(), getReference(), m_Coils.size());
 			// 3. set coils
 			for (int i = 0; i < douts.length; i++) {
 				douts[i].set(m_Coils.getBit(i));
 			}
+			
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
-		response = new WriteMultipleCoilsResponse(m_Reference, m_Coils.size());
+		response = new WriteMultipleCoilsResponse(getReference(),
+				m_Coils.size());
 
 		// transfer header data
 		if (!isHeadless()) {

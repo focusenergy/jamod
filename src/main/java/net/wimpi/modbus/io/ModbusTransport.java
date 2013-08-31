@@ -83,13 +83,14 @@ public interface ModbusTransport {
 	 * waiting data.
 	 */
 	public void flush();
-	
-	/** Set the process image to assign to all the incoming requests through
-	 * this transport.  This is only used for slave modbus connections.  When
-	 * a request is received, then the transport will assign this process image
-	 * to each request.
-	 * @param image The process image for the slave to use.
+
+	/**
+	 * Set the process image to assign to all the incoming requests and
+	 * responses through this transport.
+	 * 
+	 * @param image
+	 *            The process image for the transport to use.
 	 */
-	public void setSlaveProcessImage(ProcessImage image);
+	public void setProcessImage(ProcessImage image);
 
 }// class ModbusTransport

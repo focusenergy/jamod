@@ -26,13 +26,6 @@ package net.wimpi.modbus.procimg;
 public interface ProcessImageFactory {
 
 	/**
-	 * Returns a new ProcessImageImplementation instance.
-	 * 
-	 * @return a ProcessImageImplementation instance.
-	 */
-	public ProcessImageImplementation createProcessImageImplementation();
-
-	/**
 	 * Returns a new DigitalIn instance.
 	 * 
 	 * @return a DigitalIn instance.

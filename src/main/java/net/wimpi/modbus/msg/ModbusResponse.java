@@ -24,6 +24,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 import net.wimpi.modbus.Modbus;
+import net.wimpi.modbus.ModbusCoupler;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Abstract class implementing a <tt>ModbusResponse</tt>. This class provides
@@ -33,6 +35,8 @@ import net.wimpi.modbus.Modbus;
  * @version @version@ (@date@)
  */
 public abstract class ModbusResponse extends ModbusMessageImpl {
+
+	protected ProcessImage processImage = null;
 
 	/**
 	 * Utility method to set the raw data of the message. Should not be used
@@ -93,5 +97,35 @@ public abstract class ModbusResponse extends ModbusMessageImpl {
 		}
 		return response;
 	}// createModbusResponse
+
+	/**
+	 * Set the process image used for the response generation. When the
+	 * transport creates responses, it will use the ProcessImageFactory from
+	 * this ProcessImage. If this function hasn't been called, or has been
+	 * called with null, then the request will use the default process image set
+	 * in the ModbusCoupler.
+	 * 
+	 * @param procImg
+	 *            The process image to use when generating the response, or null
+	 *            to use the default process image set in the ModbusCoupler.
+	 */
+	public void setProcessImage(ProcessImage procImg) {
+		processImage = procImg;
+	}
+
+	/**
+	 * Get the ProcessImage associated with this response. If this response's
+	 * process image has not been set, then it returns the globally set process
+	 * image from the ModbusCoupler. If neither are set, returns null.
+	 * 
+	 * @return The process image for this response or null if it, as well as the
+	 *         global ModbusCoupler's process image, have not been set.
+	 */
+	public ProcessImage getProcessImage() {
+		if (this.processImage == null)
+			return ModbusCoupler.getReference().getProcessImage();
+		else
+			return this.processImage;
+	}
 
 }// class ModbusResponse

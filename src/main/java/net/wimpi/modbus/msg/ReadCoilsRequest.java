@@ -26,6 +26,7 @@ import java.io.IOException;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.procimg.DigitalOut;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
@@ -79,13 +80,15 @@ public final class ReadCoilsRequest extends ModbusRequest {
 
 		// 1. get process image
 		ProcessImage procimg = this.getProcessImage();
-		
-		// 2. get coil range
+
 		try {
-			douts = procimg.getDigitalOutRange(this.getReference(),
-					this.getBitCount());
+			// 2. get coil range
+			douts = procimg.getDigitalOutRange(this.getUnitID(),
+					this.getReference(), this.getBitCount());
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
 		response = new ReadCoilsResponse(douts.length);
 

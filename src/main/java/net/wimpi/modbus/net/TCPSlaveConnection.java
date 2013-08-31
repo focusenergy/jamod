@@ -26,6 +26,7 @@ import java.net.Socket;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusTCPTransport;
 import net.wimpi.modbus.io.ModbusTransport;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Class that implements a TCPSlaveConnection.
@@ -156,5 +157,12 @@ public class TCPSlaveConnection {
 	public boolean isConnected() {
 		return m_Connected;
 	}// isConnected
+	
+	/** Set the process image to associate with this connection.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_ModbusTransport.setProcessImage(image);
+	}
 
 }// class TCPSlaveConnection

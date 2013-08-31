@@ -24,7 +24,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.io.NonWordDataHandler;
 import net.wimpi.modbus.procimg.*;
 
@@ -81,17 +80,20 @@ public final class WriteMultipleRegistersRequest extends ModbusRequest {
 			// 2. get registers
 			try {
 				// TODO: realize a setRegisterRange()?
-				regs = procimg.getRegisterRange(this.getReference(),
-						this.getWordCount());
+				regs = procimg.getRegisterRange(getUnitID() ,getReference(),
+						getWordCount());
 				// 3. set Register values
 				for (int i = 0; i < regs.length; i++) {
 					regs[i].setValue(this.getRegister(i).toBytes());
 				}
+				
 			} catch (IllegalAddressException iaex) {
 				return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+			} catch (InvalidUnitIDException e) {
+				return null; // Don't send a response
 			}
 			response = new WriteMultipleRegistersResponse(this.getReference(),
-					regs.length);
+					m_Registers.length);
 		} else {
 			int result = m_NonWordDataHandler.commitUpdate();
 			if (result > 0) {
@@ -270,8 +272,13 @@ public final class WriteMultipleRegistersRequest extends ModbusRequest {
 		// read values
 		if (m_NonWordDataHandler == null) {
 			m_Registers = new Register[wc];
-			ProcessImageFactory pimf = ModbusCoupler.getReference()
-					.getProcessImageFactory();
+			ProcessImageFactory pimf = null;
+			if (getProcessImage() != null) {
+				pimf = getProcessImage().getProcessImageFactory();
+			}
+			if (pimf == null) {
+				pimf = DefaultProcessImageFactory.getReference();
+			}
 			for (int i = 0; i < wc; i++) {
 				m_Registers[i] = pimf.createRegister(din.readByte(),
 						din.readByte());

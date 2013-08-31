@@ -22,6 +22,7 @@ import java.net.InetAddress;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusUDPTransport;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 /**
  * Class implementing a <tt>UDPMasterTerminal</tt>.
@@ -226,5 +227,12 @@ class UDPMasterTerminal implements UDPTerminal {
 		m_Socket.setSoTimeout(m_Timeout);
 		m_Socket.receive(packet);
 	}// receiveMessage
+	
+	/** Set the process image to associate with this connection.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_ModbusTransport.setProcessImage(image);
+	}
 
 }// class UDPMasterTerminal

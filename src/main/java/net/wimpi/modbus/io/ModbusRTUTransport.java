@@ -286,7 +286,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
 	}
 
 	@Override
-	public void setSlaveProcessImage(ProcessImage image) {
+	public void setProcessImage(ProcessImage image) {
 		//m_ProcessImage = image; //Not used
 	}
 

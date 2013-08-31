@@ -17,7 +17,6 @@
 package net.wimpi.modbus.io;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.msg.ModbusMessage;
 import net.wimpi.modbus.msg.ModbusRequest;
@@ -124,18 +123,14 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 					;
 					m_ByteIn.reset(m_InBuffer, m_ByteInOut.size());
 					in = m_ByteIn.readUnsignedByte();
-					// check message with this slave unit identifier
-					if (in != ModbusCoupler.getReference().getUnitID()) {
-						continue;
-					}
 					in = m_ByteIn.readUnsignedByte();
 					// create request
 					request = ModbusRequest.createModbusRequest(in);
+					request.setProcessImage(m_ProcessImage);
 					request.setHeadless();
 					// read message
 					m_ByteIn.reset(m_InBuffer, m_ByteInOut.size());
 					request.readFrom(m_ByteIn);
-					request.setProcessImage(m_ProcessImage);
 				}
 				done = true;
 			} while (!done);
@@ -208,6 +203,7 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 					in = m_ByteIn.readUnsignedByte();
 					// create request
 					response = ModbusResponse.createModbusResponse(in);
+					response.setProcessImage(m_ProcessImage);
 					response.setHeadless();
 					// read message
 					m_ByteIn.reset(m_InBuffer, m_ByteInOut.size());
@@ -266,7 +262,7 @@ public class ModbusASCIITransport extends ModbusSerialTransport {
 	}
 
 	@Override
-	public void setSlaveProcessImage(ProcessImage image) {
+	public void setProcessImage(ProcessImage image) {
 		m_ProcessImage = image;
 	}
 

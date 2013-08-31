@@ -20,9 +20,11 @@
 package net.wimpi.modbus.msg;
 
 import net.wimpi.modbus.Modbus;
-import net.wimpi.modbus.ModbusCoupler;
+import net.wimpi.modbus.procimg.DefaultProcessImageFactory;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
+import net.wimpi.modbus.procimg.ProcessImageFactory;
 import net.wimpi.modbus.procimg.Register;
 
 import java.io.DataInput;
@@ -78,17 +80,20 @@ public final class WriteSingleRegisterRequest extends ModbusRequest {
 
 		// 1. get process image
 		ProcessImage procimg = this.getProcessImage();
-		
+
 		// 2. get register
 		try {
-			reg = procimg.getRegister(m_Reference);
+			reg = procimg.getRegister(getUnitID(), getReference());
 			// 3. set Register
 			reg.setValue(m_Register.toBytes());
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
 		response = new WriteSingleRegisterResponse(this.getReference(),
 				reg.getValue());
+				
 		// transfer header data
 		if (!isHeadless()) {
 			response.setTransactionID(this.getTransactionID());
@@ -155,8 +160,14 @@ public final class WriteSingleRegisterRequest extends ModbusRequest {
 
 	public void readData(DataInput din) throws IOException {
 		m_Reference = din.readUnsignedShort();
-		m_Register = ModbusCoupler.getReference().getProcessImageFactory()
-				.createRegister(din.readByte(), din.readByte());
+		ProcessImageFactory pimf = null;
+		if (getProcessImage() != null) {
+			pimf = getProcessImage().getProcessImageFactory();
+		}
+		if (pimf == null) {
+			pimf = DefaultProcessImageFactory.getReference();
+		}
+		m_Register = pimf.createRegister(din.readByte(), din.readByte());
 	}// readData
 
 	public String toString() {

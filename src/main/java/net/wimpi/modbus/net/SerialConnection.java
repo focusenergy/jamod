@@ -21,6 +21,7 @@ package net.wimpi.modbus.net;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.*;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.SerialParameters;
 
 import java.io.IOException;
@@ -200,5 +201,13 @@ public class SerialConnection {
 	public boolean isOpen() {
 		return m_Open;
 	}// isOpen
+	
+	
+	/** Set the process image to associate with this connection.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_Transport.setProcessImage(image);
+	}
 
 }// class SerialConnection

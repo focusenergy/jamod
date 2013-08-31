@@ -24,18 +24,26 @@ import java.util.Vector;
 /**
  * Class implementing a simple process image to be able to run unit tests or
  * handle simple cases.
+ * <p>
+ * By default the process image will allow jamod slaves to respond to requests
+ * with any unit ID. If the process image's unit ID is set with
+ * {@link #setUnitId(Integer)} then the jamod slave will not respond unless the
+ * request's unit ID matches the process image's.
  * 
  * @author Dieter Wimberger
+ * @author Charles Hache
  * @version @version@ (@date@)
  */
-public class SimpleProcessImage implements ProcessImageImplementation {
+public class SimpleProcessImage implements ProcessImage {
 
 	// instance attributes
 	protected Vector<DigitalIn> m_DigitalInputs;
 	protected Vector<DigitalOut> m_DigitalOutputs;
 	protected Vector<InputRegister> m_InputRegisters;
 	protected Vector<Register> m_Registers;
+	protected Integer m_UnitId = null;
 	protected boolean m_Locked = false;
+	protected ProcessImageFactory m_Factory = DefaultProcessImageFactory.getReference();
 
 	/**
 	 * Constructs a new <tt>SimpleProcessImage</tt> instance.
@@ -67,18 +75,38 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// removeDigitalIn
 
-	public void setDigitalIn(int ref, DigitalIn di)
-			throws IllegalAddressException {
-		if (!isLocked()) {
-			try {
-				m_DigitalInputs.setElementAt(di, ref);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalAddressException();
+	/**
+	 * Set the unit ID for this process image. When the unit ID is not set, or
+	 * is set to null, the process image will allow the jamod slave to respond
+	 * to all requests.
+	 * <p>
+	 * If the unit ID is explicitly set, then the process image will not allow a
+	 * jamod slave to send a response unless the requests was addressed with the
+	 * correct unit ID.
+	 * 
+	 * @param unitId
+	 */
+	public void setUnitId(Integer unitId) {
+		m_UnitId = unitId;
+	}
+
+	public Integer getUnitId() {
+		return m_UnitId;
+	}
+
+	private void checkUnitId(int unitId) throws InvalidUnitIDException {
+		if (m_UnitId != null) {
+			if (unitId != m_UnitId) {
+				throw new InvalidUnitIDException();
 			}
 		}
-	}// setDigitalIn
+	}
 
-	public DigitalIn getDigitalIn(int ref) throws IllegalAddressException {
+	@Override
+	public DigitalIn getDigitalIn(int unitId, int ref)
+			throws IllegalAddressException, InvalidUnitIDException {
+
+		checkUnitId(unitId);
 
 		try {
 			return m_DigitalInputs.elementAt(ref);
@@ -87,18 +115,19 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// getDigitalIn
 
-	public int getDigitalInCount() {
-		return m_DigitalInputs.size();
-	}// getDigitalInCount
+	@Override
+	public DigitalIn[] getDigitalInRange(int unitId, int ref, int count)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public DigitalIn[] getDigitalInRange(int ref, int count) {
+		checkUnitId(unitId);
+
 		// ensure valid reference range
 		if (ref < 0 || ref + count > m_DigitalInputs.size()) {
 			throw new IllegalAddressException();
 		} else {
 			DigitalIn[] dins = new DigitalIn[count];
 			for (int i = 0; i < dins.length; i++) {
-				dins[i] = getDigitalIn(ref + i);
+				dins[i] = getDigitalIn(unitId, ref + i);
 			}
 			return dins;
 		}
@@ -116,18 +145,12 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// removeDigitalOut
 
-	public void setDigitalOut(int ref, DigitalOut _do)
-			throws IllegalAddressException {
-		if (!isLocked()) {
-			try {
-				m_DigitalOutputs.setElementAt(_do, ref);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalAddressException();
-			}
-		}
-	}// setDigitalOut
+	@Override
+	public DigitalOut getDigitalOut(int unitId, int ref)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public DigitalOut getDigitalOut(int ref) throws IllegalAddressException {
+		checkUnitId(unitId);
+
 		try {
 			return m_DigitalOutputs.elementAt(ref);
 		} catch (IndexOutOfBoundsException ex) {
@@ -135,18 +158,19 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// getDigitalOut
 
-	public int getDigitalOutCount() {
-		return m_DigitalOutputs.size();
-	}// getDigitalOutCount
+	@Override
+	public DigitalOut[] getDigitalOutRange(int unitId, int ref, int count)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public DigitalOut[] getDigitalOutRange(int ref, int count) {
+		checkUnitId(unitId);
+
 		// ensure valid reference range
 		if (ref < 0 || ref + count > m_DigitalOutputs.size()) {
 			throw new IllegalAddressException();
 		} else {
 			DigitalOut[] douts = new DigitalOut[count];
 			for (int i = 0; i < douts.length; i++) {
-				douts[i] = getDigitalOut(ref + i);
+				douts[i] = getDigitalOut(unitId, ref + i);
 			}
 			return douts;
 		}
@@ -164,19 +188,11 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// removeInputRegister
 
-	public void setInputRegister(int ref, InputRegister reg)
-			throws IllegalAddressException {
-		if (!isLocked()) {
-			try {
-				m_InputRegisters.setElementAt(reg, ref);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalAddressException();
-			}
-		}
-	}// setInputRegister
+	@Override
+	public InputRegister getInputRegister(int unitId, int ref)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public InputRegister getInputRegister(int ref)
-			throws IllegalAddressException {
+		checkUnitId(unitId);
 
 		try {
 			return m_InputRegisters.elementAt(ref);
@@ -185,18 +201,19 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// getInputRegister
 
-	public int getInputRegisterCount() {
-		return m_InputRegisters.size();
-	}// getInputRegisterCount
+	@Override
+	public InputRegister[] getInputRegisterRange(int unitId, int ref, int count)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public InputRegister[] getInputRegisterRange(int ref, int count) {
+		checkUnitId(unitId);
+
 		// ensure valid reference range
 		if (ref < 0 || ref + count > m_InputRegisters.size()) {
 			throw new IllegalAddressException();
 		} else {
 			InputRegister[] iregs = new InputRegister[count];
 			for (int i = 0; i < iregs.length; i++) {
-				iregs[i] = getInputRegister(ref + i);
+				iregs[i] = getInputRegister(unitId, ref + i);
 			}
 			return iregs;
 		}
@@ -214,18 +231,11 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// removeRegister
 
-	public void setRegister(int ref, Register reg)
-			throws IllegalAddressException {
-		if (!isLocked()) {
-			try {
-				m_Registers.setElementAt(reg, ref);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalAddressException();
-			}
-		}
-	}// setRegister
+	@Override
+	public Register getRegister(int unitId, int ref)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public Register getRegister(int ref) throws IllegalAddressException {
+		checkUnitId(unitId);
 
 		try {
 			return m_Registers.elementAt(ref);
@@ -234,21 +244,31 @@ public class SimpleProcessImage implements ProcessImageImplementation {
 		}
 	}// getRegister
 
-	public int getRegisterCount() {
-		return m_Registers.size();
-	}// getRegisterCount
+	@Override
+	public Register[] getRegisterRange(int unitId, int ref, int count)
+			throws IllegalAddressException, InvalidUnitIDException {
 
-	public Register[] getRegisterRange(int ref, int count) {
+		checkUnitId(unitId);
+
 		// ensure valid reference range
 		if (ref < 0 || ref + count > m_Registers.size()) {
 			throw new IllegalAddressException();
 		} else {
 			Register[] iregs = new Register[count];
 			for (int i = 0; i < iregs.length; i++) {
-				iregs[i] = getRegister(ref + i);
+				iregs[i] = getRegister(unitId, ref + i);
 			}
 			return iregs;
 		}
 	}// getRegisterRange
+
+	@Override
+	public ProcessImageFactory getProcessImageFactory() {
+		return m_Factory;
+	}
+	
+	public void setProcessImageFactory(ProcessImageFactory pf) {
+		m_Factory = pf;
+	}
 
 }// class SimpleProcessImage

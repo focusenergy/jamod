@@ -19,9 +19,9 @@
 
 package net.wimpi.modbus.msg;
 
+import net.wimpi.modbus.procimg.DefaultProcessImageFactory;
 import net.wimpi.modbus.procimg.InputRegister;
 import net.wimpi.modbus.procimg.ProcessImageFactory;
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.Modbus;
 
 import java.io.DataInput;
@@ -160,8 +160,13 @@ public final class ReadInputRegistersResponse extends ModbusResponse {
 		setByteCount(din.readUnsignedByte());
 
 		InputRegister[] registers = new InputRegister[getWordCount()];
-		ProcessImageFactory pimf = ModbusCoupler.getReference()
-				.getProcessImageFactory();
+		ProcessImageFactory pimf = null;
+		if (getProcessImage() != null) {
+			pimf = getProcessImage().getProcessImageFactory();
+		}
+		if (pimf == null) {
+			pimf = DefaultProcessImageFactory.getReference();
+		}
 		for (int k = 0; k < getWordCount(); k++) {
 			registers[k] = pimf.createInputRegister(din.readByte(),
 					din.readByte());

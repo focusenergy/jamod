@@ -23,6 +23,7 @@ import net.wimpi.modbus.ModbusIOException;
 import net.wimpi.modbus.io.ModbusTransport;
 import net.wimpi.modbus.msg.ModbusRequest;
 import net.wimpi.modbus.msg.ModbusResponse;
+import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.util.SerialParameters;
 
 /**
@@ -92,11 +93,16 @@ public class ModbusSerialListener implements Runnable {
 					if (Modbus.debug)
 						System.out
 								.println("Request:" + request.getHexMessage());
-					if (Modbus.debug)
-						System.out.println("Response:"
-								+ response.getHexMessage());
+					if (Modbus.debug) {
+						if (response != null)
+							System.out.println("Response:"
+									+ response.getHexMessage());
+						else
+							System.out.println("Response: <Nothing to send>");
+					}
 
-					transport.writeMessage(response);
+					if (response != null)
+						transport.writeMessage(response);
 
 				} catch (ModbusIOException ex) {
 					ex.printStackTrace();
@@ -119,6 +125,13 @@ public class ModbusSerialListener implements Runnable {
 	public boolean isListening() {
 		return m_Listening.get();
 	}// isListening
+	
+	/** Set the process image to associate with this listener.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_SerialCon.setProcessImage(image);
+	}
 
 }// class ModbusSerialListener
 

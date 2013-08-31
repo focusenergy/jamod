@@ -16,7 +16,6 @@
 
 package net.wimpi.modbus.cmd;
 
-import net.wimpi.modbus.ModbusCoupler;
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.net.ModbusTCPListener;
 import net.wimpi.modbus.procimg.SimpleDigitalIn;
@@ -64,17 +63,17 @@ public class TCPSlaveTest {
 
 			spi.addRegister(new SimpleRegister(251));
 			spi.addInputRegister(new SimpleInputRegister(45));
+			
+			spi.setUnitId(15);
 
-			// 2. create the coupler holding the image
-			ModbusCoupler.getReference().setProcessImage(spi);
-			ModbusCoupler.getReference().setMaster(false);
-			ModbusCoupler.getReference().setUnitID(15);
-
-			// 3. create a listener with 3 threads in pool
+			// 2. create a listener with 3 threads in pool
 			if (Modbus.debug)
 				System.out.println("Listening...");
 			listener = new ModbusTCPListener(3);
 			listener.setPort(port);
+			
+			// 3. specify process image
+			listener.setProcessImage(spi);
 			
 			System.out.println("Listening to "+listener.getAddress().getCanonicalHostName()+" on port "+port);
 			

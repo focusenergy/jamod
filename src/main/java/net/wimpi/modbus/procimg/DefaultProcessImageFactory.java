@@ -20,16 +20,30 @@ package net.wimpi.modbus.procimg;
  * The default ProcessImageFactory.
  * 
  * @author Dieter Wimberger
+ * @author Charles Hache
  * @version @version@ (@date@)
  */
 public class DefaultProcessImageFactory implements ProcessImageFactory {
 
+	private static DefaultProcessImageFactory factory;
+	
+	static {
+		factory = new DefaultProcessImageFactory();
+	}
+	
+	private DefaultProcessImageFactory() {
+		
+	}
+	
+	public static DefaultProcessImageFactory getReference() {
+		return factory;
+	}
 	/**
 	 * Returns a new SimpleProcessImage instance.
 	 * 
 	 * @return a SimpleProcessImage instance.
 	 */
-	public ProcessImageImplementation createProcessImageImplementation() {
+	public ProcessImage createProcessImage() {
 		return new SimpleProcessImage();
 	}// createProcessImageImplementation
 

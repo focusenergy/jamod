@@ -33,7 +33,7 @@ import net.wimpi.modbus.procimg.ProcessImage;
 public abstract class ModbusRequest extends ModbusMessageImpl {
 
 	protected ProcessImage processImage = null;
-	
+
 	/**
 	 * Returns the <tt>ModbusResponse</tt> that correlates with this
 	 * <tt>ModbusRequest</tt>.
@@ -49,10 +49,15 @@ public abstract class ModbusRequest extends ModbusMessageImpl {
 	 * <tt>ModbusRequest</tt>.
 	 * <p>
 	 * The implementation should take care about assembling the reply to this
-	 * <tt>ModbusRequest</tt>.
+	 * <tt>ModbusRequest</tt>. The implementation should return a proper modbus
+	 * error response if an error occurred. If the request should be silently
+	 * and no response sent, then the implementation should return null (ie: in
+	 * the case of a request to some other slave on the network).
 	 * <p>
 	 * 
-	 * @return the corresponding <tt>ModbusResponse</tt>.
+	 * @return the corresponding <tt>ModbusResponse</tt>, an error response, or
+	 *         null if no response could be created (and the request should be
+	 *         ignored).
 	 */
 	public abstract ModbusResponse createResponse();
 
@@ -121,27 +126,29 @@ public abstract class ModbusRequest extends ModbusMessageImpl {
 	}// createModbusRequest
 
 	public abstract int getReference();
-	
-	/** Set the process image used for the response generation.
-	 * When this request creates the response to send back to the master,
-	 * it will use the process image set with this function.  If this
-	 * function hasn't been called, or has been called with null, then
-	 * the request will use the default process image set in the 
-	 * ModbusCoupler.
-	 * @param procImg The process image to use when generating the
-	 * response, or null to use the default process image set in the
-	 * ModbusCoupler.
+
+	/**
+	 * Set the process image used for the response generation. When this request
+	 * creates the response to send back to the master, it will use the process
+	 * image set with this function. If this function hasn't been called, or has
+	 * been called with null, then the request will use the default process
+	 * image set in the ModbusCoupler.
+	 * 
+	 * @param procImg
+	 *            The process image to use when generating the response, or null
+	 *            to use the default process image set in the ModbusCoupler.
 	 */
 	public void setProcessImage(ProcessImage procImg) {
 		processImage = procImg;
 	}
-	
-	/** Get the ProcessImage associated with this request.
-	 * If this request's process image has not been set, then it returns
-	 * the globally set process image from the ModbusCoupler.  If neither
-	 * are set, returns null.
-	 * @return The process image for this request or null if it, as well as
-	 * the global ModbusCoupler's process image, have not been set).
+
+	/**
+	 * Get the ProcessImage associated with this request. If this request's
+	 * process image has not been set, then it returns the globally set process
+	 * image from the ModbusCoupler. If neither are set, returns null.
+	 * 
+	 * @return The process image for this request or null if it, as well as the
+	 *         global ModbusCoupler's process image, have not been set.
 	 */
 	public ProcessImage getProcessImage() {
 		if (this.processImage == null)

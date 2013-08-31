@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.procimg.IllegalAddressException;
+import net.wimpi.modbus.procimg.InvalidUnitIDException;
 import net.wimpi.modbus.procimg.ProcessImage;
 import net.wimpi.modbus.procimg.Register;
 
@@ -77,13 +78,15 @@ public final class ReadMultipleRegistersRequest extends ModbusRequest {
 
 		// 1. get process image
 		ProcessImage procimg = this.getProcessImage();
-		
-		// 2. get input registers range
+
 		try {
-			regs = procimg.getRegisterRange(this.getReference(),
-					this.getWordCount());
+			// 2. get input registers range
+			regs = procimg.getRegisterRange(this.getUnitID(),
+					this.getReference(), this.getWordCount());
 		} catch (IllegalAddressException iaex) {
 			return createExceptionResponse(Modbus.ILLEGAL_ADDRESS_EXCEPTION);
+		} catch (InvalidUnitIDException e) {
+			return null; // Don't send a response
 		}
 		response = new ReadMultipleRegistersResponse(regs);
 		// transfer header data

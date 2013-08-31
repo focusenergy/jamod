@@ -54,6 +54,9 @@ public abstract class SynchronizedAbstractRegister implements Register {
 	}// setValue
 
 	public final synchronized void setValue(byte[] bytes) {
+		if (m_Register == null) {
+			m_Register = new byte[2];
+		}
 		if (bytes.length < 2) {
 			throw new IllegalArgumentException();
 		} else {

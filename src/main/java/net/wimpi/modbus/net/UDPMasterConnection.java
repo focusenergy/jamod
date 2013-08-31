@@ -18,6 +18,7 @@ package net.wimpi.modbus.net;
 
 import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.io.ModbusTransport;
+import net.wimpi.modbus.procimg.ProcessImage;
 
 import java.net.InetAddress;
 
@@ -170,5 +171,12 @@ public class UDPMasterConnection {
 	public boolean isConnected() {
 		return m_Connected;
 	}// isConnected
+	
+	/** Set the process image to associate with this connection.
+	 * @param image The process image to set.
+	 */
+	public void setProcessImage(ProcessImage image) {
+		this.m_Terminal.setProcessImage(image);
+	}
 
 }// class UDPMasterConnection
