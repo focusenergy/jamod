@@ -153,6 +153,14 @@ public class ModbusTCPTransaction implements ModbusTransaction {
 	public void setRetries(int num) {
 		m_Retries = num;
 	}// setRetries
+	
+	private void checkRetryCount(int retries) throws ModbusIOException {
+		if (retries == (m_Retries)) {
+			throw new ModbusIOException(
+					"Executing transaction failed (tried "
+							+ m_Retries + " times)");
+		}
+	}
 
 	public void execute() throws ModbusIOException, ModbusSlaveException,
 			ModbusException {
@@ -169,22 +177,25 @@ public class ModbusTCPTransaction implements ModbusTransaction {
 			 */
 			m_TransactionLock.acquire();
 
-			// 3. open the connection if not connected
-			if (!m_Connection.isConnected()) {
-				try {
-					m_Connection.connect();
-					m_IO = m_Connection.getModbusTransport();
-				} catch (Exception ex) {
-					throw new ModbusIOException("Connecting failed.");
-				}
-			}
-
-			// 4. Retry transaction m_Retries times, in case of
+			// 3. Try transaction m_Retries times, in case of
 			// I/O Exception problems.
 			int retryCounter = 0;
 			int transactionId;
+			m_Response = null;
 			while (retryCounter < m_Retries) {
+				retryCounter++;
 				try {
+					
+					// 4. open the connection if not connected
+					if (!m_Connection.isConnected()) {
+						try {
+							m_Connection.connect();
+							m_IO = m_Connection.getModbusTransport();
+						} catch (Exception ex) {
+							throw new ModbusIOException("Connecting failed.");
+						}
+					}
+					
 					// toggle and set the id
 					transactionId = c_TransactionID.increment();
 					m_Request.setTransactionID(transactionId);
@@ -202,27 +213,17 @@ public class ModbusTCPTransaction implements ModbusTransaction {
 						m_Response.setReference(m_Request.getReference());
 						break;
 					} else {
-						if (retryCounter == (m_Retries - 1)) {
-							throw new ModbusIOException(
-									"Executing transaction failed (tried "
-											+ m_Retries + " times)");
-						} else {
-							retryCounter++;
-							continue;
-						}
-					}
-				} catch (ModbusIOException ex) {
-					if (retryCounter == (m_Retries - 1)) {
-						throw new ModbusIOException(
-								"Executing transaction failed (tried "
-										+ m_Retries + " times)");
-					} else {
-						retryCounter++;
+						checkRetryCount(retryCounter);
 						continue;
 					}
+				} catch (ModbusIOException ex) {
+					checkRetryCount(retryCounter);
+					//can get here if the remote closes the connection
+					m_Connection.close(); //try recreating connection next try
+					continue;
 				}
 			}
-
+			
 			// 5. deal with "application level" exceptions
 			if (m_Response instanceof ExceptionResponse) {
 				throw new ModbusSlaveException(
